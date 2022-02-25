@@ -1,0 +1,43 @@
+version: '3.7'
+services:
+
+# Projet web
+  web:
+    build: site
+    ports :
+     - "80:80"
+    volumes:
+     - ./website:/var/www/website/
+     - ./server/000-default.conf:/etc/apache2/sites-available/000-default.conf
+     - ./server/apache2.conf:/etc/apache2/apache2.conf
+     - ./server/php.ini:/usr/local/etc/php/php.ini
+    depends_on:
+     - mariadb
+
+# Mariadb Database
+  mariadb:
+    image: mariadb:latest
+    environment:
+      - MYSQL_DATABASE=website
+      - MYSQL_ROOT_PASSWORD=adminpassword
+      - MYSQL_USER=admin
+      - MYSQL_PASSWORD=adminpassword
+    volumes:
+      - ./db_data:/var/lib/mysql
+    restart: always
+
+#Phpmyadmin
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    depends_on:
+      - mariadb
+    ports:
+      - 8080:80
+    environment:
+      - PMA_HOST=mariadb
+      - MYSQL_USERNAME=admin
+      - MYSQL_ROOT_PASSWORD=adminpassword
+    restart: always
+
+      
+      
